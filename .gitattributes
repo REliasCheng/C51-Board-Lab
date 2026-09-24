@@ -1,0 +1,11 @@
+* text=auto
+# Preserve legacy course source bytes and line endings.
+*.c -text
+*.h -text
+*.a51 -text
+*.uvproj -text
+*.md text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary

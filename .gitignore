@@ -1,0 +1,30 @@
+# Keil C51 build output
+Objects/
+Listings/
+Output/
+build/
+*.obj
+*.o
+*.lst
+*.m51
+*.lnp
+*.hex
+*.bin
+*.axf
+*.map
+*.build_log.htm
+*.__i
+
+# Keil user state and backup files
+*.uvopt
+*.uvgui.*
+*.Administrator
+*.bak
+*.tmp
+
+# Editor and operating-system files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
