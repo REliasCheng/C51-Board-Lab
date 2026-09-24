@@ -13,7 +13,7 @@ P3.5 RCK  ─┘
 P0 ──────────────────────> row data
 ```
 
-![点阵连接](../../../assets/images/led-matrix-wiring.png)
+![点阵连接](../../../assets/images/diagram/led-matrix-wiring.png)
 
 ## 软件结构
 

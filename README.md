@@ -2,7 +2,7 @@
 
 51 开天开发板的硬件资源分析与板级实验。仓库围绕端口分配、总线缓冲、片选译码和外设复用组织代码，课程原始工程保存在各项目的 `course/` 中。
 
-![51 开天开发板](assets/images/board-overview.png)
+![51 开天开发板](assets/images/hardware/board-overview.png)
 
 ## Overview
 
@@ -22,16 +22,42 @@ P0 / P1 / P2 / P3
 Display / Input / Storage / RTC / ADC / Motor
 ```
 
-## Hardware Architecture
+## Hardware Architecture Understanding
 
-![开发板原理图](assets/images/board-schematic.png)
+![开发板原理图](assets/images/hardware/board-schematic.png)
 
-- `P0` 是主要数据总线，用于数码管段码、LCD 数据和点阵行数据。
-- `P2.2~P2.4` 接入 74HC138，产生 8 路低有效选择信号。
-- 74HC245 缓冲数码管段码总线。
-- `P3.4~P3.6` 同时服务于 74HC595、DS1302 和 XPT2046，不同模块不能无条件同时驱动。
-- J24 在数码管和 8×8 点阵之间切换共享资源。
-- CH340C 将 MCU 串口连接到 USB。
+### 选择控制：74HC138
+
+```text
+STC89C52-class MCU
+        ↓ P2.2 / P2.3 / P2.4（三位选择码）
+     74HC138
+        ↓ 8 路低有效输出
+  数码管位选 / 板级选择信号
+```
+
+MCU 只使用三根 GPIO 就能产生八路互斥选择信号。软件先写入三位地址，再把 P0 上的段码送到被选中的数码管。这样减少了位选所需的引脚数量，也把“显示数据”和“选择哪个器件”分成两条独立路径。
+
+### 数据缓冲：74HC245
+
+```text
+STC89C52-class MCU P0
+        ↓ 8-bit data
+     74HC245
+        ↓ buffered bus
+  数码管 a~g / dp
+```
+
+74HC245 是三态总线收发器，不是锁存器。它隔离 MCU 端口与显示负载，并为 8 位段码总线提供缓冲。真正带输出锁存的器件是点阵使用的 74HC595：串行数据先进入移位寄存器，再由 RCK 更新输出寄存器，避免移位过程直接出现在 LED 点阵上。
+
+### 板级复用
+
+- `P0` 同时用于数码管段码、LCD 数据和点阵行数据；
+- `P3.4~P3.6` 同时服务于 74HC595、DS1302 和 XPT2046；
+- J24 在数码管和 8×8 点阵之间切换共享显示资源；
+- CH340C 将 P3.0/P3.1 的 UART 转换为 USB，而这两个引脚也连接独立按键。
+
+这些连接降低了 GPIO 占用，但要求软件明确当前硬件模式，并在切换模块时恢复端口状态。
 
 更完整的板级说明见：
 
@@ -39,6 +65,7 @@ Display / Input / Storage / RTC / ADC / Motor
 - [MCU 资源分配](docs/MCU资源分配.md)
 - [外设连接关系](docs/外设连接关系.md)
 - [调试记录](docs/调试记录.md)
+- [个人实践路线](docs/个人实践路线.md)
 
 ## Board Resources
 
@@ -83,7 +110,7 @@ Display / Input / Storage / RTC / ADC / Motor
 ## Source Layout
 
 - `course/`：课程提供的原始源码与工程文件，按原字节复制。
-- `practice/`：仅在形成个人修正或扩展版本后建立；当前 Phase 2 没有空目录。
+- `practice/`：仅在形成个人修正或扩展版本后建立；当前没有空目录。
 - `docs/`：根据原理图和源码整理的板级说明。
 - `assets/images/`：从现有资料中筛选的板卡、原理图和接口图，来源见 [SOURCES.md](assets/images/SOURCES.md)。
 

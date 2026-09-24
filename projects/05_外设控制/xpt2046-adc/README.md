@@ -14,7 +14,7 @@ P3.7 <── DOUT
          XPT2046 ──> analog channels
 ```
 
-![XPT2046 时序](../../../assets/images/xpt2046-timing.png)
+![XPT2046 时序](../../../assets/images/diagram/xpt2046-timing.png)
 
 ## 软件结构
 

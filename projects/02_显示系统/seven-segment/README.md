@@ -1,41 +1,68 @@
 # 七段数码管
 
-## 功能介绍
+数码管项目把 8 位显示拆成两条硬件路径：P0 传输段码，P2.2~P2.4 选择显示位置。课程目录保留直接驱动、动态扫描和模块封装三个版本。
 
-项目包含段码输出、动态扫描和 `Nixie_Disp()` 模块化三个版本，用 8 位数码管显示数字。
+## Hardware Overview
 
-## 硬件结构
+| 部件 | 接口 | 作用 |
+| --- | --- | --- |
+| 8051 MCU | P0 | 输出 `a~g` 和 `dp` 段码 |
+| 74HC245 | P0 与段线之间 | 缓冲 8 位数据总线 |
+| 74HC138 | P2.2、P2.3、P2.4 | 把三位选择码译成八路位选 |
+| J24 | 显示资源跳线 | 在数码管和 8×8 点阵之间选择 |
+
+74HC245 不保存数据，它负责总线隔离和驱动；数码管持续显示依赖 MCU 周期刷新。
+
+![段码总线](../../../assets/images/diagram/seven-segment-data-bus.png)
+
+![74HC138 位选](../../../assets/images/diagram/74hc138-digit-select.png)
+
+## Signal Flow
 
 ```text
-P0 ──> 74HC245 ──> a~g / dp
-P2.2~P2.4 ──> 74HC138 ──> digit select 0~7
-J24 ──> seven-segment / LED matrix selection
+number
+  ↓ segment lookup table
+P0 byte ──> 74HC245 ──> a~g / dp
+
+position
+  ↓ three-bit select code
+P2.2~P2.4 ──> 74HC138 ──> one active digit
 ```
 
-![段码总线](../../../assets/images/seven-segment-data-bus.png)
+多位动态显示按固定节拍切换位选。人眼看到的是连续画面，任一时刻实际只有一位处于选通状态。
 
-## 软件结构
+## Software Structure
 
 ```text
-main
- └─ Nixie / Nixie_Disp
-     ├─ position decode
-     ├─ segment table lookup
-     └─ blanking delay
+main.c
+  └─ Nixie_Disp(loc, val)
+       ├─ select one digit through P2.2~P2.4
+       ├─ map val through Disp_Val[]
+       ├─ write segment byte to P0
+       └─ blank P0 before next position
 ```
 
-## 关键代码
+- `course/01_driver/`：单个位选和段码输出；
+- `course/02_dynamic-scan/`：在 `main.c` 中轮询多位；
+- `course/03_module/`：把显示动作封装到 `Nixie.c/.h`。
 
-显示位置被转换成 P2.2~P2.4 的三位地址，段码表再把数字映射到 P0。动态版本轮询多位数码管，并在切换位选时清空 P0，减少重影。
+## Key Implementation
 
-## 调试记录
+`Nixie_Disp()` 使用 `switch` 把 1~8 映射到 P2.4/P2.3/P2.2 的组合，再由 `Disp_Val[]` 查找段码。显示 1 ms 后写 `P0=0x00`，防止上一位段码残留到下一位。
 
-数码管无显示时先检查 J24 是否位于数码管侧。若只亮部分段，再分别检查 P0 段码、74HC245 和 P2.2~P2.4 位选。
+当前课程版本把刷新节拍建立在阻塞延时上。个人版本计划改为 Timer0 固定扫描，应用层只维护 8 字节显示缓冲区。
 
-## 技术总结
+## Engineering Value
 
-数码管实验把数据总线与片选控制分开，展示了有限 GPIO 下的时间复用显示。
+该模块展示了三项板级设计：用译码器减少位选 GPIO、用缓冲器隔离显示负载、用时间复用驱动多位显示。它也是分析 P0 数据总线与 P2 选择控制的主要入口。
+
+## Debug Record
+
+- 全部不亮：先检查 J24 是否位于数码管侧；
+- 只亮固定一位：检查 P2.2~P2.4 和 74HC138 输出；
+- 段码错误：检查 P0、74HC245 方向及 `Disp_Val[]`；
+- 重影：确认切换位选前后是否执行消隐。
 
 ## Source
 
-`course/` 保存驱动、动态扫描和模块化三个课程版本。
+`course/` 为课程原始工程，源码未修改。
