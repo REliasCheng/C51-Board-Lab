@@ -31,4 +31,4 @@ Timer0 以模式 1 运行，每 1 ms 进入一次中断。ISR 累加计数，主
 
 ## Source
 
-`course/timer0-1ms/` 为课程原始工程。
+工程入口：`course/timer0-1ms/`。

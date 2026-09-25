@@ -1,12 +1,12 @@
 # C51-Board-Lab
 
-51 开天开发板的硬件资源分析与板级实验。仓库围绕端口分配、总线缓冲、片选译码和外设复用组织代码，课程原始工程保存在各项目的 `course/` 中。
+## Overview
+
+51 开天开发板的硬件资源分析与板级实验。仓库围绕端口分配、总线缓冲、片选译码和外设复用组织代码，各项目保留可直接打开的 Keil 工程。
 
 ![51 开天开发板](assets/images/hardware/board-overview.png)
 
-## Overview
-
-板上使用 40 引脚 8051 兼容 MCU，课程代码按 11.0592 MHz 编写，Keil 工程以通用 `AT89C52` 目标保存。实验覆盖 LED、数码管、LCD1602、矩阵键盘、LED 点阵、UART、AT24C02、DS1302、XPT2046、软件 PWM 和蜂鸣器。
+板上使用 40 引脚 8051 兼容 MCU，定时参数按 11.0592 MHz 编写，Keil 工程以通用 `AT89C52` 目标保存。实验覆盖 LED、数码管、LCD1602、矩阵键盘、LED 点阵、UART、AT24C02、DS1302、XPT2046、软件 PWM 和蜂鸣器。
 
 这里的重点是信号如何从 MCU 到达外设：
 
@@ -22,7 +22,7 @@ P0 / P1 / P2 / P3
 Display / Input / Storage / RTC / ADC / Motor
 ```
 
-## Hardware Architecture Understanding
+## Architecture
 
 ![开发板原理图](assets/images/hardware/board-schematic.png)
 
@@ -59,15 +59,7 @@ STC89C52-class MCU P0
 
 这些连接降低了 GPIO 占用，但要求软件明确当前硬件模式，并在切换模块时恢复端口状态。
 
-更完整的板级说明见：
-
-- [开发板架构分析](docs/开发板架构分析.md)
-- [MCU 资源分配](docs/MCU资源分配.md)
-- [外设连接关系](docs/外设连接关系.md)
-- [调试记录](docs/调试记录.md)
-- [个人实践路线](docs/个人实践路线.md)
-
-## Board Resources
+## Technical Highlights
 
 | 类别 | 板载资源 | 关键接口 |
 | --- | --- | --- |
@@ -98,25 +90,32 @@ STC89C52-class MCU P0
 | 外设控制 | [Buzzer](projects/05_外设控制/buzzer/) | 软件方波输出 |
 | 综合应用 | [Board factory test](projects/06_综合应用/board-factory-test/) | BSP、矩阵按键和多外设测试入口 |
 
-## Build
+## Build / Run
 
 1. 使用 Keil C51 打开项目目录中的 `.uvproj`。
-2. 检查目标器件、晶振和输出目录；课程定时代码按 11.0592 MHz 计算。
+2. 检查目标器件、晶振和输出目录；定时参数按 11.0592 MHz 计算。
 3. 编译后使用 STC-ISP 和板载 CH340C 下载。
 4. 数码管或点阵无显示时，先检查 J24 跳线位置。
 
 仓库不跟踪 Keil 的 `Objects/`、`Listings/`、HEX、用户界面状态和构建日志。
 
-## Source Layout
+## Project Structure
 
-- `course/`：课程提供的原始源码与工程文件，按原字节复制。
-- `practice/`：仅在形成个人修正或扩展版本后建立；当前没有空目录。
+- `course/`：可直接打开的参考源码与工程文件。
 - `docs/`：根据原理图和源码整理的板级说明。
 - `assets/images/`：从现有资料中筛选的板卡、原理图和接口图，来源见 [SOURCES.md](assets/images/SOURCES.md)。
 
-课程与第三方资料不受根目录 MIT License 覆盖，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+来源与许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
-## Related Repositories
+## Documentation
+
+- [开发板架构分析](docs/开发板架构分析.md)
+- [MCU 资源分配](docs/MCU资源分配.md)
+- [外设连接关系](docs/外设连接关系.md)
+- [调试记录](docs/调试记录.md)
+- [个人实践路线](docs/个人实践路线.md)
+
+## Related Projects
 
 - [stc89c52-learning](https://github.com/REliasCheng/stc89c52-learning)：STC89C52RC 外设驱动与模块化工程。
 - [BlueBridgeCup-MCU](https://github.com/REliasCheng/BlueBridgeCup-MCU)：CT107D 竞赛训练与多外设综合控制。

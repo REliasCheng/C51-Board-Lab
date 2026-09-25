@@ -1,3 +1,7 @@
+Scope notice
+
+This license applies only to original documentation and future personal code placed under practice/ by the repository maintainer. It does not apply to course examples under projects/**/course/ or to third-party source code, diagrams, Keil project components, and hardware reference material. See THIRD_PARTY_NOTICES.md.
+
 MIT License
 
 Copyright (c) 2026 REliasCheng

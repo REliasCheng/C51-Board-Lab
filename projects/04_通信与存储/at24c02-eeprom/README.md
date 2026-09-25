@@ -42,7 +42,7 @@ main.c
             └─ I2C_SendAck / ReceiveAck
 ```
 
-当前课程代码把 I²C 基础时序和 AT24C02 器件接口放在同一个 `i2c.c` 中。
+当前代码把 I²C 基础时序和 AT24C02 器件接口放在同一个 `i2c.c` 中。
 
 ## Key Implementation
 
@@ -52,7 +52,7 @@ main.c
 
 ## Engineering Value
 
-该模块展示了从 GPIO 边沿到 I²C 事务，再到非易失字节存储的分层关系。接口改进重点不是增加更多 API，而是让错误能从总线层返回应用层。
+该模块连接 GPIO 边沿、I²C 事务和非易失字节存储。接口改进重点是把 ACK 和超时错误从总线层返回应用层。
 
 ## Debug Record
 
@@ -63,4 +63,4 @@ main.c
 
 ## Source
 
-`course/software-i2c/` 为课程原始工程。
+工程入口：`course/software-i2c/`。

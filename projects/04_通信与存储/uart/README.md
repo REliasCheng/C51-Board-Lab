@@ -1,6 +1,6 @@
 # UART
 
-两个课程工程分别验证发送和中断接收。Timer1 生成波特率，P3.0/P3.1 经过 CH340C 与 USB 串口连接。
+两个工程分别实现查询式发送和中断接收。Timer1 生成波特率，P3.0/P3.1 经过 CH340C 与 USB 串口连接。
 
 ## Hardware Overview
 
@@ -37,7 +37,7 @@ main.c
 
 ## Key Implementation
 
-课程参数按 11.0592 MHz、9600 baud 生成。Timer1 使用模式 2 自动重装，避免每个串口位都由软件重新装载计数器。
+串口参数按 11.0592 MHz、9600 baud 生成。Timer1 使用模式 2 自动重装，避免每个串口位都由软件重新装载计数器。
 
 接收工程在 ISR 内调用 `UART_SendByte(SBUF)` 完成回显。该函数等待 TI，意味着 ISR 会一直占用 CPU 直到发送完成。个人版本计划将字节写入环形缓冲区，由主循环或发送状态机处理回显。
 
@@ -54,4 +54,4 @@ UART 工程覆盖了时钟源、帧收发寄存器、中断标志和 USB-UART �
 
 ## Source
 
-`course/01_transmit/` 和 `course/02_receive-echo/` 为课程原始工程。
+工程入口：`course/01_transmit/`、`course/02_receive-echo/`。

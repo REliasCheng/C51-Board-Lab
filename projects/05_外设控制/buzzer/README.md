@@ -28,4 +28,4 @@ P2.5 同时是 LCD1602 的 RW 控制线。蜂鸣器与 LCD 同时使用时不能
 
 ## Source
 
-`course/square-wave/` 为课程原始工程。
+工程入口：`course/square-wave/`。
