@@ -89,6 +89,7 @@ STC89C52-class MCU P0
 | 外设控制 | [XPT2046 ADC](projects/05_外设控制/xpt2046-adc/) | 板载模拟通道采样 |
 | 外设控制 | [Buzzer](projects/05_外设控制/buzzer/) | 软件方波输出 |
 | 综合应用 | [Board factory test](projects/06_综合应用/board-factory-test/) | BSP、矩阵按键和多外设测试入口 |
+| 综合应用 | [Board resource planner](projects/06_综合应用/board-resource-planner/) | 端口、定时器和显示跳线的组合冲突检查 |
 
 ## Build / Run
 

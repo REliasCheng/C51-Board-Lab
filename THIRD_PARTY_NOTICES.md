@@ -13,9 +13,10 @@
 - 技术主题分类与导航；
 - 开发板架构、端口分配和复用关系说明；
 - 各项目 README 与代码调用分析；
+- `practice/` 中的板级资源冲突检查器；
 - 图片筛选、命名和来源索引。
 
-这些原创文档以及未来加入的 `practice/` 代码适用根目录 MIT License。
+这些原创文档和 `practice/` 代码适用根目录 MIT License。
 
 ## Excluded packages
 
