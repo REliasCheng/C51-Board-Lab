@@ -26,6 +26,10 @@ Display / Input / Storage / RTC / ADC / Motor
 
 ![开发板原理图](assets/images/hardware/board-schematic.png)
 
+| 74HC138 数码管位选 | P0 / 74HC245 段码总线 |
+| --- | --- |
+| ![74HC138 数码管位选](assets/images/diagram/74hc138-digit-select.png) | ![P0 与数码管段码总线](assets/images/diagram/seven-segment-data-bus.png) |
+
 ### 选择控制：74HC138
 
 ```text
