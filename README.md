@@ -1,6 +1,6 @@
 # C51-Board-Lab
 
-## Overview
+## 👋 项目简介 | Overview
 
 51 开天开发板的硬件资源分析与板级实验。仓库围绕端口分配、总线缓冲、片选译码和外设复用组织代码，各项目保留可直接打开的 Keil 工程。
 
@@ -22,7 +22,7 @@ P0 / P1 / P2 / P3
 Display / Input / Storage / RTC / ADC / Motor
 ```
 
-## Architecture
+## 🧠 板级架构 | Hardware Architecture
 
 ![开发板原理图](assets/images/hardware/board-schematic.png)
 
@@ -63,7 +63,7 @@ STC89C52-class MCU P0
 
 这些连接降低了 GPIO 占用，但要求软件明确当前硬件模式，并在切换模块时恢复端口状态。
 
-## Technical Highlights
+## ⚙ 板载资源 | Board Resources
 
 | 类别 | 板载资源 | 关键接口 |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ STC89C52-class MCU P0
 | 模拟与控制 | XPT2046、热敏/光敏/电位器、PWM、电机、蜂鸣器 | P3.4~P3.7、Timer0、ULN2003 |
 | 扩展 | DS18B20、TFT、LCD12864 | P3.7、板载排针 |
 
-## Projects
+## 🚀 核心项目 | Featured Projects
 
 | 分类 | 项目 | 内容 |
 | --- | --- | --- |
@@ -95,7 +95,7 @@ STC89C52-class MCU P0
 | 综合应用 | [Board factory test](projects/06_综合应用/board-factory-test/) | BSP、矩阵按键和多外设测试入口 |
 | 综合应用 | [Board resource planner](projects/06_综合应用/board-resource-planner/) | 端口、定时器和显示跳线的组合冲突检查 |
 
-## Build / Run
+## 🛠 构建与下载 | Build / Run
 
 1. 使用 Keil C51 打开项目目录中的 `.uvproj`。
 2. 检查目标器件、晶振和输出目录；定时参数按 11.0592 MHz 计算。
@@ -104,7 +104,7 @@ STC89C52-class MCU P0
 
 仓库不跟踪 Keil 的 `Objects/`、`Listings/`、HEX、用户界面状态和构建日志。
 
-## Project Structure
+## 📂 工程结构 | Repository Structure
 
 - `course/`：可直接打开的参考源码与工程文件。
 - `docs/`：根据原理图和源码整理的板级说明。
@@ -112,7 +112,7 @@ STC89C52-class MCU P0
 
 来源与许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
-## Documentation
+## 📖 技术文档 | Documentation
 
 - [开发板架构分析](docs/开发板架构分析.md)
 - [MCU 资源分配](docs/MCU资源分配.md)
@@ -120,7 +120,7 @@ STC89C52-class MCU P0
 - [调试记录](docs/调试记录.md)
 - [个人实践路线](docs/个人实践路线.md)
 
-## Related Projects
+## 🔗 相关项目 | Related Projects
 
 - [stc89c52-learning](https://github.com/REliasCheng/stc89c52-learning)：STC89C52RC 外设驱动与模块化工程。
 - [BlueBridgeCup-MCU](https://github.com/REliasCheng/BlueBridgeCup-MCU)：CT107D 竞赛训练与多外设综合控制。
