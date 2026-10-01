@@ -1,27 +1,59 @@
 # C51-Board-Lab
 
-> Clean Public Snapshot Candidate · R1 internal candidate · no remote configured
+面向 8051 兼容教学开发板的板级资源分析与组合工程规划仓库。核心实践 `Board Resource Planner` 把原理图中的端口复用、定时器占用和显示跳线转换为可执行的资源冲突检查，使综合应用在编码前就能发现硬件资源重叠。
 
-保留板级资源映射、共享总线分析和独立 board-resource-planner practice。
+## 平台与技术栈
 
-## Public snapshot scope
+- **处理器范围**：40 引脚 8051 兼容 MCU，代码语境以 `REGX52` / AT89C52 类目标为主
+- **典型时钟**：11.0592 MHz，实际使用以板载晶振为准
+- **开发方式**：Embedded C / Keil C51；资源规划核心使用 C11 + GCC
+- **板级模块**：数码管、LED 点阵、LCD、独立键/矩阵键、UART、AT24C02、DS1302、DS18B20、XPT2046
 
-- 保留独立源码文件：4 个；范围以当前 candidate tree 为准。
-- 课程源码、课程图片、PDF、未知字体、未知生成资产和不必要的第三方/vendor 大包均不在本快照中。
-- 课程工程及课程/板卡图片均未进入该快照。
+## 架构说明
 
-## Contents
+```text
+原理图与引脚关系
+        ↓
+BoardModule → BoardResourceMask
+        ↓
+已选模块集合 → 冲突比较 → 可接受方案 / 冲突报告
+```
 
-- [技术文档](docs/)
-- 当前没有保留图片或图示。
-- [Board Resource Planner](projects/06_综合应用/board-resource-planner/)
+资源模型采用保守策略：只要两个模块共享同一端口组、定时器或显示模式，就先报告冲突；是否能通过分时复用解决，由具体应用进一步评估。
 
-## Validation boundary
+## 核心功能
 
-- 未提供板端运行证据时，不声称 hardware verified。
-- 本轮对保留的 host-testable 核心运行了 GCC 16.1.0 编译和测试；未验证 Keil/板端构建或硬件运行。
-- 文档中的协议、地址、寄存器和架构关系属于技术事实说明，不表示未知来源的具体实现已被保留。
+- 建立 P0 数据总线、P2 控制线、P3 串行外设与 UART 的复用表。
+- 识别数码管、点阵和 LCD 之间的显示资源冲突。
+- 检查独立按键与 UART、AT24C02 与 LED、DS1302 与 XPT2046 等组合。
+- 通过位图表达模块占用，输出冲突资源和相关模块。
+- 用主机端测试覆盖六组已知冲突和一组兼容组合。
 
-## License scope
+## 工程结构
 
-根目录 LICENSE 仅适用于该 candidate 中由仓库维护者独立编写的文档、图示和代码。未捆绑的 upstream 组件、课程材料和第三方实现不因文档引用而受到根 MIT License 覆盖。
+```text
+projects/06_综合应用/board-resource-planner/
+  practice/include/board_resources.h  资源与结果接口
+  practice/src/board_resources.c      板级资源表和冲突检查
+  practice/src/main.c                 组合规划示例
+  tests/test_board_resources.c        主机端验证
+docs/                                 板卡、外设、资源与调试说明
+```
+
+## 文档导航
+
+- [开发板架构分析](docs/开发板架构分析.md)
+- [外设连接关系](docs/外设连接关系.md)
+- [MCU 资源分配](docs/MCU资源分配.md)
+- [个人实践路线](docs/个人实践路线.md)
+- [Board Resource Planner](projects/06_综合应用/board-resource-planner/README.md)
+
+## 验证范围
+
+资源规划器及其测试已使用 GCC 16.1.0、C11 与 `-Wall -Wextra -Werror -pedantic` 构建并运行通过。
+
+验证对象是静态资源模型，不替代 Keil 目标构建、跳线检查、电气兼容性分析或真实开发板测试；板级结论仍需结合具体板卡版本和原理图复核。
+
+## License Boundary
+
+根目录 [MIT License](LICENSE) 适用于仓库维护者编写的代码与文档。芯片手册、板卡图纸、器件资料以及未随仓库分发的外部实现不因技术引用而纳入该许可。
