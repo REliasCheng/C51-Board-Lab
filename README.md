@@ -11,15 +11,34 @@
 
 ## 架构说明
 
-```text
-原理图与引脚关系
-        ↓
-BoardModule → BoardResourceMask
-        ↓
-已选模块集合 → 冲突比较 → 可接受方案 / 冲突报告
+```mermaid
+flowchart LR
+    A["Module"] --> B["Resource Mapping<br/>BoardResourceMask"]
+    B --> C["Conflict Detection<br/>shared_resources"]
+    C --> D{"Planning Result"}
+    D -->|无共享资源| E["Accepted"]
+    D -->|存在共享资源| F["Conflict Report"]
 ```
 
 资源模型采用保守策略：只要两个模块共享同一端口组、定时器或显示模式，就先报告冲突；是否能通过分时复用解决，由具体应用进一步评估。
+
+### 为什么需要资源规划
+
+8051 教学板上的模块并不总是拥有独立引脚。例如 UART 与独立按键共享 P3.0/P3.1，LED 与 AT24C02 共享 P2.0/P2.1。如果只按功能列表组合模块，冲突通常要到联调阶段才暴露。`Board Resource Planner` 先把模块需求映射为 `BoardResourceMask`，再与已选模块逐项比较，让资源重叠在编码前就可见。
+
+### 模块资源需求示例
+
+以下映射均来自当前资源表和现有测试：
+
+| 模块 | 资源需求 | 现有测试中的关系 |
+| --- | --- | --- |
+| UART | P3.0/P3.1、Timer1 | 与独立按键在 P3.0/P3.1 冲突 |
+| 独立按键 | P3.0/P3.1、P3.2 | 与 UART 在 P3.0/P3.1 冲突 |
+| LED | P2.0/P2.1、P2.2~P2.4、P2.5~P2.7 | 与 AT24C02 在 P2.0/P2.1 冲突 |
+| AT24C02 | P2.0/P2.1 | 与 LED 在 P2.0/P2.1 冲突 |
+| 数码管 + UART + Timer0 Tick | 各自资源无重叠 | 现有测试接受该三模块组合 |
+
+冲突检测返回新加入模块、已有模块和共享资源位图；它只报告静态占用关系，不判断分时复用或电气兼容性。
 
 ## 核心功能
 
@@ -39,6 +58,15 @@ projects/06_综合应用/board-resource-planner/
   tests/test_board_resources.c        主机端验证
 docs/                                 板卡、外设、资源与调试说明
 ```
+
+### 核心入口
+
+| 内容 | 文件 |
+| --- | --- |
+| 资源定义与结果接口 | [`board_resources.h`](projects/06_综合应用/board-resource-planner/practice/include/board_resources.h) |
+| 模块映射与冲突检测实现 | [`board_resources.c`](projects/06_综合应用/board-resource-planner/practice/src/board_resources.c) |
+| 已有兼容/冲突测试 | [`test_board_resources.c`](projects/06_综合应用/board-resource-planner/tests/test_board_resources.c) |
+| 项目说明与构建命令 | [`Board Resource Planner README`](projects/06_综合应用/board-resource-planner/README.md) |
 
 ## 文档导航
 
