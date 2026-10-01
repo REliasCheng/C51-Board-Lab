@@ -1,15 +1,24 @@
 # C51-Board-Lab
 
-面向 8051 兼容教学开发板的板级资源分析与组合工程规划仓库。核心实践 `Board Resource Planner` 把原理图中的端口复用、定时器占用和显示跳线转换为可执行的资源冲突检查，使综合应用在编码前就能发现硬件资源重叠。
+面向 8051 兼容教学开发板的板级资源分析与组合工程规划仓库。
 
-## 平台与技术栈
+## Overview
 
-- **处理器范围**：40 引脚 8051 兼容 MCU，代码语境以 `REGX52` / AT89C52 类目标为主
-- **典型时钟**：11.0592 MHz，实际使用以板载晶振为准
-- **开发方式**：Embedded C / Keil C51；资源规划核心使用 C11 + GCC
-- **板级模块**：数码管、LED 点阵、LCD、独立键/矩阵键、UART、AT24C02、DS1302、DS18B20、XPT2046
+核心实践 `Board Resource Planner` 把原理图中的端口复用、定时器占用和显示跳线转换为可执行的资源冲突检查，使综合应用在编码前就能发现硬件资源重叠。
 
-## 架构说明
+## Platform & Technology
+
+| Field | Value |
+| --- | --- |
+| Language | Embedded C、C11 |
+| Platform | 40 引脚 8051 兼容 MCU；代码语境以 `REGX52` / AT89C52 类目标为主；典型时钟 11.0592 MHz，实际使用以板载晶振为准 |
+| Toolchain | Keil C51 开发语境；资源规划核心使用 GCC 16.1.0 |
+| Architecture | `BoardResourceMask` 资源映射与保守冲突检测 |
+| Verification | 资源规划器的 GCC/C11 主机构建与测试；不包含硬件验证 |
+
+板级模块范围包括数码管、LED 点阵、LCD、独立键/矩阵键、UART、AT24C02、DS1302、DS18B20 与 XPT2046。
+
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -22,11 +31,13 @@ flowchart LR
 
 资源模型采用保守策略：只要两个模块共享同一端口组、定时器或显示模式，就先报告冲突；是否能通过分时复用解决，由具体应用进一步评估。
 
-### 为什么需要资源规划
+## Key Features
+
+### Why Resource Planning
 
 8051 教学板上的模块并不总是拥有独立引脚。例如 UART 与独立按键共享 P3.0/P3.1，LED 与 AT24C02 共享 P2.0/P2.1。如果只按功能列表组合模块，冲突通常要到联调阶段才暴露。`Board Resource Planner` 先把模块需求映射为 `BoardResourceMask`，再与已选模块逐项比较，让资源重叠在编码前就可见。
 
-### 模块资源需求示例
+### Resource Mapping Examples
 
 以下映射均来自当前资源表和现有测试：
 
@@ -40,7 +51,7 @@ flowchart LR
 
 冲突检测返回新加入模块、已有模块和共享资源位图；它只报告静态占用关系，不判断分时复用或电气兼容性。
 
-## 核心功能
+### Core Capabilities
 
 - 建立 P0 数据总线、P2 控制线、P3 串行外设与 UART 的复用表。
 - 识别数码管、点阵和 LCD 之间的显示资源冲突。
@@ -48,7 +59,7 @@ flowchart LR
 - 通过位图表达模块占用，输出冲突资源和相关模块。
 - 用主机端测试覆盖六组已知冲突和一组兼容组合。
 
-## 工程结构
+## Project Structure
 
 ```text
 projects/06_综合应用/board-resource-planner/
@@ -59,7 +70,7 @@ projects/06_综合应用/board-resource-planner/
 docs/                                 板卡、外设、资源与调试说明
 ```
 
-### 核心入口
+### Core Entry Points
 
 | 内容 | 文件 |
 | --- | --- |
@@ -68,7 +79,7 @@ docs/                                 板卡、外设、资源与调试说明
 | 已有兼容/冲突测试 | [`test_board_resources.c`](projects/06_综合应用/board-resource-planner/tests/test_board_resources.c) |
 | 项目说明与构建命令 | [`Board Resource Planner README`](projects/06_综合应用/board-resource-planner/README.md) |
 
-## 文档导航
+## Documentation
 
 - [开发板架构分析](docs/开发板架构分析.md)
 - [外设连接关系](docs/外设连接关系.md)
@@ -76,11 +87,23 @@ docs/                                 板卡、外设、资源与调试说明
 - [个人实践路线](docs/个人实践路线.md)
 - [Board Resource Planner](projects/06_综合应用/board-resource-planner/README.md)
 
-## 验证范围
+## Verification
 
-资源规划器及其测试已使用 GCC 16.1.0、C11 与 `-Wall -Wextra -Werror -pedantic` 构建并运行通过。
+### Host Test
 
-验证对象是静态资源模型，不替代 Keil 目标构建、跳线检查、电气兼容性分析或真实开发板测试；板级结论仍需结合具体板卡版本和原理图复核。
+资源规划器的主机测试覆盖六组已知冲突和一组兼容组合，当前均通过。
+
+### Build Verification
+
+资源规划器及其测试已使用 GCC 16.1.0、C11 与 `-Wall -Wextra -Werror -pedantic` 构建通过。
+
+### Hardware Validation
+
+Not performed。当前结果不包含 Keil 目标构建、跳线检查、电气兼容性分析或真实开发板测试。
+
+### Runtime Evidence
+
+现有运行证据仅限资源规划器的主机端执行结果，不代表完整固件或板端运行；板级结论仍需结合具体板卡版本和原理图复核。
 
 ## License Boundary
 
