@@ -2,19 +2,21 @@
 
 面向 8051 兼容教学开发板的板级资源分析与组合工程规划仓库。
 
+**🧩 Board Resource Planner**
+
 ![Board Resource Planner](assets/images/architecture/portfolio-overview.svg)
 
-## Project Snapshot
+## Planner Snapshot
 
-| Field | Value |
+| Planner Focus | Current Scope |
 | --- | --- |
-| Language | Embedded C、C11 |
-| Platform | 40 引脚 8051 兼容 MCU；代码语境以 `REGX52` / AT89C52 类目标为主；典型时钟 11.0592 MHz，实际使用以板载晶振为准 |
-| Toolchain | Keil C51 开发语境；资源规划核心使用 GCC 16.1.0 |
-| Architecture | `BoardResourceMask` 资源映射与保守冲突检测 |
-| Verification | 资源规划器的 GCC/C11 主机构建与测试；不包含硬件验证 |
+| Target Context | 40 引脚 8051 兼容教学板；`REGX52` / AT89C52 类目标 |
+| Planner Model | `BoardResourceMask` 资源映射与保守冲突检测 |
+| Resource Classes | GPIO、Timer、UART、I²C 与显示模式 |
+| Host Evidence | 六组已知冲突与一组兼容组合通过 GCC/C11 测试 |
+| Hardware Scope | 不替代跳线、电气兼容性或真实开发板验证 |
 
-> **Project status:** Planner architecture documented · Host Test passed · GCC host build passed · Keil target build and hardware validation not performed
+> ⚠️ **Planner evidence:** Known conflict and compatible cases host-tested · Hardware validation not performed
 
 ## Overview
 
@@ -37,11 +39,11 @@ flowchart LR
 
 ## Key Features
 
-### Why Resource Planning
+### 🧭 Why Resource Planning
 
 8051 教学板上的模块并不总是拥有独立引脚。例如 UART 与独立按键共享 P3.0/P3.1，LED 与 AT24C02 共享 P2.0/P2.1。如果只按功能列表组合模块，冲突通常要到联调阶段才暴露。`Board Resource Planner` 先把模块需求映射为 `BoardResourceMask`，再与已选模块逐项比较，让资源重叠在编码前就可见。
 
-### Resource Mapping Examples
+### ⚠️ Resource Mapping Examples
 
 以下映射均来自当前资源表和现有测试：
 
