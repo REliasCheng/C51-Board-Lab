@@ -99,7 +99,7 @@ docs/                                 板卡、外设、资源与调试说明
 
 ### Hardware Validation
 
-Not performed。当前结果不包含 Keil 目标构建、跳线检查、电气兼容性分析或真实开发板测试。
+**Status:** Not Performed. 当前结果不包含 Keil 目标构建、跳线检查、电气兼容性分析或真实开发板测试。
 
 ### Runtime Evidence
 
