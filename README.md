@@ -2,11 +2,9 @@
 
 面向 8051 兼容教学开发板的板级资源分析与组合工程规划仓库。
 
-## Overview
+![Board Resource Planner](assets/images/architecture/portfolio-overview.svg)
 
-核心实践 `Board Resource Planner` 把原理图中的端口复用、定时器占用和显示跳线转换为可执行的资源冲突检查，使综合应用在编码前就能发现硬件资源重叠。
-
-## Platform & Technology
+## Project Snapshot
 
 | Field | Value |
 | --- | --- |
@@ -15,6 +13,12 @@
 | Toolchain | Keil C51 开发语境；资源规划核心使用 GCC 16.1.0 |
 | Architecture | `BoardResourceMask` 资源映射与保守冲突检测 |
 | Verification | 资源规划器的 GCC/C11 主机构建与测试；不包含硬件验证 |
+
+> **Project status:** Planner architecture documented · Host Test passed · GCC host build passed · Keil target build and hardware validation not performed
+
+## Overview
+
+核心实践 `Board Resource Planner` 把原理图中的端口复用、定时器占用和显示跳线转换为可执行的资源冲突检查，使综合应用在编码前就能发现硬件资源重叠。
 
 板级模块范围包括数码管、LED 点阵、LCD、独立键/矩阵键、UART、AT24C02、DS1302、DS18B20 与 XPT2046。
 
