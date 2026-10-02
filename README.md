@@ -18,13 +18,13 @@
 
 > ⚠️ **Planner evidence:** Known conflict and compatible cases host-tested · Hardware validation not performed
 
-## Overview
+## 📌 Overview
 
 核心实践 `Board Resource Planner` 把原理图中的端口复用、定时器占用和显示跳线转换为可执行的资源冲突检查，使综合应用在编码前就能发现硬件资源重叠。
 
 板级模块范围包括数码管、LED 点阵、LCD、独立键/矩阵键、UART、AT24C02、DS1302、DS18B20 与 XPT2046。
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
@@ -37,7 +37,7 @@ flowchart LR
 
 资源模型采用保守策略：只要两个模块共享同一端口组、定时器或显示模式，就先报告冲突；是否能通过分时复用解决，由具体应用进一步评估。
 
-## Key Features
+## ✨ Key Features
 
 ### 🧭 Why Resource Planning
 
@@ -65,7 +65,7 @@ flowchart LR
 - 通过位图表达模块占用，输出冲突资源和相关模块。
 - 用主机端测试覆盖六组已知冲突和一组兼容组合。
 
-## Project Structure
+## 📂 Project Structure
 
 ```text
 projects/06_综合应用/board-resource-planner/
@@ -85,7 +85,7 @@ docs/                                 板卡、外设、资源与调试说明
 | 已有兼容/冲突测试 | [`test_board_resources.c`](projects/06_综合应用/board-resource-planner/tests/test_board_resources.c) |
 | 项目说明与构建命令 | [`Board Resource Planner README`](projects/06_综合应用/board-resource-planner/README.md) |
 
-## Documentation
+## 📚 Documentation
 
 - [开发板架构分析](docs/开发板架构分析.md)
 - [外设连接关系](docs/外设连接关系.md)
@@ -93,21 +93,21 @@ docs/                                 板卡、外设、资源与调试说明
 - [个人实践路线](docs/个人实践路线.md)
 - [Board Resource Planner](projects/06_综合应用/board-resource-planner/README.md)
 
-## Verification
+## 🧪 Verification
 
-### Host Test
+### 💻 Host Test
 
 资源规划器的主机测试覆盖六组已知冲突和一组兼容组合，当前均通过。
 
-### Build Verification
+### 🔨 Build Verification
 
 资源规划器及其测试已使用 GCC 16.1.0、C11 与 `-Wall -Wextra -Werror -pedantic` 构建通过。
 
-### Hardware Validation
+### 🔌 Hardware Validation
 
 **Status:** Not Performed. 当前结果不包含 Keil 目标构建、跳线检查、电气兼容性分析或真实开发板测试。
 
-### Runtime Evidence
+### 📊 Runtime Evidence
 
 现有运行证据仅限资源规划器的主机端执行结果，不代表完整固件或板端运行；板级结论仍需结合具体板卡版本和原理图复核。
 
