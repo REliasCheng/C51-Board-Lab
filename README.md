@@ -11,9 +11,9 @@
 | Planner Focus | Current Scope |
 | --- | --- |
 | Target Context | 40 引脚 8051 兼容教学板；`REGX52` / AT89C52 类目标 |
-| Planner Model | `BoardResourceMask` 资源映射与保守冲突检测 |
+| Planner Model | `BoardResourceMask` 资源映射、`BoardPlanResult` 明确结果与保守冲突检测 |
 | Resource Classes | GPIO、Timer、UART、I²C 与显示模式 |
-| Host Evidence | 六组已知冲突与一组兼容组合通过 GCC/C11 测试 |
+| Host Evidence | 11 组规划、错误路径与状态不变性测试；GCC / Clang CI |
 | Hardware Scope | 不替代跳线、电气兼容性或真实开发板验证 |
 
 > ⚠️ **Planner evidence:** Known conflict and compatible cases host-tested · Hardware validation not performed
@@ -30,9 +30,10 @@
 flowchart LR
     A["Module"] --> B["Resource Mapping<br/>BoardResourceMask"]
     B --> C["Conflict Detection<br/>shared_resources"]
-    C --> D{"Planning Result"}
+    C --> D{"BoardPlanResult"}
     D -->|无共享资源| E["Accepted"]
     D -->|存在共享资源| F["Conflict Report"]
+    D -->|参数/枚举/重复/容量错误| G["Explicit Error"]
 ```
 
 资源模型采用保守策略：只要两个模块共享同一端口组、定时器或显示模式，就先报告冲突；是否能通过分时复用解决，由具体应用进一步评估。
@@ -55,15 +56,16 @@ flowchart LR
 | AT24C02 | P2.0/P2.1 | 与 LED 在 P2.0/P2.1 冲突 |
 | 数码管 + UART + Timer0 Tick | 各自资源无重叠 | 现有测试接受该三模块组合 |
 
-冲突检测返回新加入模块、已有模块和共享资源位图；它只报告静态占用关系，不判断分时复用或电气兼容性。
+规划 API 使用明确状态区分参数错误、非法模块、重复模块、容量不足与真实资源冲突。只有返回 `BOARD_PLAN_RESOURCE_CONFLICT` 时，`BoardConflict` 才包含新模块、已有模块和共享资源位图；其他结果会清空该输出。它只报告静态占用关系，不判断分时复用或电气兼容性。
 
 ### Core Capabilities
 
 - 建立 P0 数据总线、P2 控制线、P3 串行外设与 UART 的复用表。
 - 识别数码管、点阵和 LCD 之间的显示资源冲突。
 - 检查独立按键与 UART、AT24C02 与 LED、DS1302 与 XPT2046 等组合。
-- 通过位图表达模块占用，输出冲突资源和相关模块。
-- 用主机端测试覆盖六组已知冲突和一组兼容组合。
+- 通过位图表达模块占用，以明确结果枚举报告规划状态。
+- 失败时保持模块数量与既有模块顺序不变，冲突详情只在对应状态下有效。
+- 用主机端测试覆盖已知冲突、兼容组合、无效输入、重复、容量与输出合同。
 
 ## 📂 Project Structure
 
@@ -82,7 +84,7 @@ docs/                                 板卡、外设、资源与调试说明
 | --- | --- |
 | 资源定义与结果接口 | [`board_resources.h`](projects/06_综合应用/board-resource-planner/practice/include/board_resources.h) |
 | 模块映射与冲突检测实现 | [`board_resources.c`](projects/06_综合应用/board-resource-planner/practice/src/board_resources.c) |
-| 已有兼容/冲突测试 | [`test_board_resources.c`](projects/06_综合应用/board-resource-planner/tests/test_board_resources.c) |
+| 兼容、冲突与失败路径测试 | [`test_board_resources.c`](projects/06_综合应用/board-resource-planner/tests/test_board_resources.c) |
 | 项目说明与构建命令 | [`Board Resource Planner README`](projects/06_综合应用/board-resource-planner/README.md) |
 
 ## 📚 Documentation
@@ -97,11 +99,11 @@ docs/                                 板卡、外设、资源与调试说明
 
 ### 💻 Host Test
 
-资源规划器的主机测试覆盖六组已知冲突和一组兼容组合，当前均通过。
+资源规划器的主机测试包含 11 组命名测试，覆盖已知冲突、兼容组合、NULL plan、非法枚举、重复模块、容量边界、失败状态不变性和冲突输出复用，当前均通过。
 
 ### 🔨 Build Verification
 
-资源规划器及其测试已使用 GCC 16.1.0、C11 与 `-Wall -Wextra -Werror -pedantic` 构建通过。
+资源规划器测试与示例已使用 GCC 16.1.0、C11 与 `-Wall -Wextra -Werror -pedantic` 构建并执行通过。GitHub Actions 使用 GCC、Clang 执行相同验证，并运行 GCC AddressSanitizer / UndefinedBehaviorSanitizer 检查。
 
 ### 🔌 Hardware Validation
 

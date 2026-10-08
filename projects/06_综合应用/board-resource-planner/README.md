@@ -25,26 +25,37 @@ BoardModule
     ↓ lookup
 BoardResourceMask
     ↓ compare with selected modules
-BoardConflict / accepted plan
+BoardPlanResult
+    ↓
+accepted plan / conflict details / explicit error
 ```
 
 - `practice/include/board_resources.h`：模块、资源位图和冲突结果接口。
 - `practice/src/board_resources.c`：板级资源表和组合检查。
 - `practice/src/main.c`：数码管、UART、按键、EEPROM 和 LED 的组合示例。
-- `tests/test_board_resources.c`：验证六组来自原理图的冲突以及一组兼容组合。
+- `tests/test_board_resources.c`：验证兼容组合、资源冲突、错误优先级、输出合同与失败状态不变性。
+
+## 结果与冲突合同
+
+`board_plan_add()` 返回 `BoardPlanResult`：
+
+| 结果 | 语义 |
+| --- | --- |
+| `BOARD_PLAN_OK` | 模块已提交到规划表 |
+| `BOARD_PLAN_INVALID_ARGUMENT` | `BoardPlan` 指针无效 |
+| `BOARD_PLAN_INVALID_MODULE` | 模块枚举不在当前资源表中 |
+| `BOARD_PLAN_DUPLICATE_MODULE` | 模块已经存在 |
+| `BOARD_PLAN_CAPACITY_EXCEEDED` | 固定容量规划表已满或状态超界 |
+| `BOARD_PLAN_RESOURCE_CONFLICT` | 与第一个冲突的既有模块共享资源 |
+
+`BoardConflict *` 是可选输出。每次调用都会先清空它；只有 `BOARD_PLAN_RESOURCE_CONFLICT` 返回时可以读取冲突模块与资源位图。所有失败均保持现有模块数量和顺序不变。容量已满时，错误优先级为 duplicate → capacity → resource conflict。
 
 ## 构建
 
+从仓库根目录执行：
+
 ```powershell
-gcc -std=c11 -Wall -Wextra -Werror -pedantic `
-  practice/src/board_resources.c practice/src/main.c `
-  -I practice/include -o board-resource-planner.exe
-
-gcc -std=c11 -Wall -Wextra -Werror -pedantic `
-  practice/src/board_resources.c tests/test_board_resources.c `
-  -I practice/include -o board-resource-planner-test.exe
-
-.\board-resource-planner-test.exe
+python scripts/run_host_tests.py --compiler gcc
 ```
 
-程序只检查静态资源占用，不代替跳线检查、电气兼容性分析或板端测试。
+该入口以 C11 严格警告选项构建并执行测试和示例；Linux 或已安装 Clang 的主机可把编译器参数改为 `clang`。程序只检查静态资源占用，不代替 Keil C51 构建、跳线检查、电气兼容性分析或板端测试。
