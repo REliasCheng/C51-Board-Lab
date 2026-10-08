@@ -26,7 +26,8 @@ enum {
 };
 
 typedef enum {
-    BOARD_MODULE_LED,
+    BOARD_MODULE_INVALID = -1,
+    BOARD_MODULE_LED = 0,
     BOARD_MODULE_SEVEN_SEGMENT,
     BOARD_MODULE_LED_MATRIX,
     BOARD_MODULE_LCD1602,
@@ -43,6 +44,15 @@ typedef enum {
     BOARD_MODULE_COUNT
 } BoardModule;
 
+typedef enum {
+    BOARD_PLAN_OK = 0,
+    BOARD_PLAN_INVALID_ARGUMENT,
+    BOARD_PLAN_INVALID_MODULE,
+    BOARD_PLAN_DUPLICATE_MODULE,
+    BOARD_PLAN_CAPACITY_EXCEEDED,
+    BOARD_PLAN_RESOURCE_CONFLICT
+} BoardPlanResult;
+
 typedef struct {
     BoardModule modules[BOARD_PLAN_CAPACITY];
     size_t count;
@@ -55,8 +65,15 @@ typedef struct {
 } BoardConflict;
 
 void board_plan_init(BoardPlan *plan);
-bool board_plan_add(BoardPlan *plan, BoardModule module, BoardConflict *conflict);
+/*
+ * Adds one module without partially modifying the plan on failure.
+ * The optional conflict output is cleared for every call and is populated
+ * only when BOARD_PLAN_RESOURCE_CONFLICT is returned.
+ */
+BoardPlanResult board_plan_add(BoardPlan *plan, BoardModule module,
+                               BoardConflict *conflict);
 const char *board_module_name(BoardModule module);
 BoardResourceMask board_module_resources(BoardModule module);
+const char *board_plan_result_name(BoardPlanResult result);
 
 #endif

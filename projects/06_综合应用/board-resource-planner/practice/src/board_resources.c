@@ -27,10 +27,24 @@ static bool valid_module(BoardModule module)
     return module >= BOARD_MODULE_LED && module < BOARD_MODULE_COUNT;
 }
 
+static void clear_conflict(BoardConflict *conflict)
+{
+    if (conflict != NULL) {
+        conflict->incoming = BOARD_MODULE_INVALID;
+        conflict->existing = BOARD_MODULE_INVALID;
+        conflict->shared_resources = UINT32_C(0);
+    }
+}
+
 void board_plan_init(BoardPlan *plan)
 {
     if (plan != NULL) {
+        size_t i;
+
         plan->count = 0U;
+        for (i = 0U; i < BOARD_PLAN_CAPACITY; ++i) {
+            plan->modules[i] = BOARD_MODULE_INVALID;
+        }
     }
 }
 
@@ -44,31 +58,66 @@ BoardResourceMask board_module_resources(BoardModule module)
     return valid_module(module) ? MODULES[module].resources : UINT32_C(0);
 }
 
-bool board_plan_add(BoardPlan *plan, BoardModule module, BoardConflict *conflict)
+const char *board_plan_result_name(BoardPlanResult result)
+{
+    switch (result) {
+    case BOARD_PLAN_OK:
+        return "OK";
+    case BOARD_PLAN_INVALID_ARGUMENT:
+        return "INVALID_ARGUMENT";
+    case BOARD_PLAN_INVALID_MODULE:
+        return "INVALID_MODULE";
+    case BOARD_PLAN_DUPLICATE_MODULE:
+        return "DUPLICATE_MODULE";
+    case BOARD_PLAN_CAPACITY_EXCEEDED:
+        return "CAPACITY_EXCEEDED";
+    case BOARD_PLAN_RESOURCE_CONFLICT:
+        return "RESOURCE_CONFLICT";
+    default:
+        return "UNKNOWN_RESULT";
+    }
+}
+
+BoardPlanResult board_plan_add(BoardPlan *plan, BoardModule module,
+                               BoardConflict *conflict)
 {
     size_t i;
     BoardResourceMask incoming;
 
-    if (plan == NULL || !valid_module(module) || plan->count >= BOARD_PLAN_CAPACITY) {
-        return false;
+    clear_conflict(conflict);
+    if (plan == NULL) {
+        return BOARD_PLAN_INVALID_ARGUMENT;
     }
+    if (!valid_module(module)) {
+        return BOARD_PLAN_INVALID_MODULE;
+    }
+    if (plan->count > BOARD_PLAN_CAPACITY) {
+        return BOARD_PLAN_CAPACITY_EXCEEDED;
+    }
+
+    for (i = 0U; i < plan->count; ++i) {
+        if (plan->modules[i] == module) {
+            return BOARD_PLAN_DUPLICATE_MODULE;
+        }
+    }
+    if (plan->count == BOARD_PLAN_CAPACITY) {
+        return BOARD_PLAN_CAPACITY_EXCEEDED;
+    }
+
     incoming = board_module_resources(module);
     for (i = 0U; i < plan->count; ++i) {
         BoardModule existing = plan->modules[i];
-        BoardResourceMask shared;
-        if (existing == module) {
-            return true;
-        }
-        shared = incoming & board_module_resources(existing);
+        BoardResourceMask shared = incoming & board_module_resources(existing);
+
         if (shared != UINT32_C(0)) {
             if (conflict != NULL) {
                 conflict->incoming = module;
                 conflict->existing = existing;
                 conflict->shared_resources = shared;
             }
-            return false;
+            return BOARD_PLAN_RESOURCE_CONFLICT;
         }
     }
     plan->modules[plan->count++] = module;
-    return true;
+    return BOARD_PLAN_OK;
 }
