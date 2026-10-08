@@ -3,6 +3,7 @@ Objects/
 Listings/
 Output/
 build/
+.build/
 *.obj
 *.o
 *.lst
