@@ -11,13 +11,16 @@ jobs:
   host-tests:
     name: ${{ matrix.compiler }} planner tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         compiler: [gcc, clang]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
       - name: Build and run planner verification
         run: python3 scripts/run_host_tests.py --compiler "${{ matrix.compiler }}"
@@ -25,9 +28,12 @@ jobs:
   sanitizers:
     name: GCC ASan and UBSan
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
       - name: Build and run sanitizer verification
         run: python3 scripts/run_host_tests.py --compiler gcc --sanitizers
