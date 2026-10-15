@@ -184,6 +184,31 @@ static void test_duplicate_module(void)
     assert_plan_equal(&plan, &before);
 }
 
+static void test_invalid_existing_module_rejected_without_mutation(void)
+{
+    BoardPlan plan;
+    BoardPlan before;
+    BoardConflict conflict;
+
+    board_plan_init(&plan);
+    plan.modules[0] = BOARD_MODULE_INVALID;
+    plan.count = 1U;
+    before = plan;
+    assert(board_plan_add(&plan, BOARD_MODULE_LED, &conflict) ==
+           BOARD_PLAN_INVALID_ARGUMENT);
+    assert_conflict_cleared(&conflict);
+    assert_plan_equal(&plan, &before);
+
+    plan.modules[0] = BOARD_MODULE_LED;
+    plan.modules[1] = (BoardModule)INT_MAX;
+    plan.count = 2U;
+    before = plan;
+    assert(board_plan_add(&plan, BOARD_MODULE_LED, &conflict) ==
+           BOARD_PLAN_INVALID_ARGUMENT);
+    assert_conflict_cleared(&conflict);
+    assert_plan_equal(&plan, &before);
+}
+
 static void test_capacity_and_error_priority(void)
 {
     struct {
@@ -309,12 +334,13 @@ int main(void)
     test_first_conflict_is_deterministic();
     test_invalid_arguments_and_modules();
     test_duplicate_module();
+    test_invalid_existing_module_rejected_without_mutation();
     test_capacity_and_error_priority();
     test_failure_state_and_retry();
     test_conflict_output_reuse_and_optional_output();
     test_repeated_planning_is_deterministic();
     test_result_names();
 
-    puts("board resource planner tests passed (11 cases)");
+    puts("board resource planner tests passed (12 cases)");
     return 0;
 }

@@ -42,7 +42,7 @@ accepted plan / conflict details / explicit error
 | 结果 | 语义 |
 | --- | --- |
 | `BOARD_PLAN_OK` | 模块已提交到规划表 |
-| `BOARD_PLAN_INVALID_ARGUMENT` | `BoardPlan` 指针无效 |
+| `BOARD_PLAN_INVALID_ARGUMENT` | `BoardPlan` 指针无效，或现有条目包含无效模块编号 |
 | `BOARD_PLAN_INVALID_MODULE` | 模块枚举不在当前资源表中 |
 | `BOARD_PLAN_DUPLICATE_MODULE` | 模块已经存在 |
 | `BOARD_PLAN_CAPACITY_EXCEEDED` | 固定容量规划表已满或状态超界 |
