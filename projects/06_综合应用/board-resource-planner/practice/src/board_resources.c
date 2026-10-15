@@ -96,6 +96,11 @@ BoardPlanResult board_plan_add(BoardPlan *plan, BoardModule module,
     }
 
     for (i = 0U; i < plan->count; ++i) {
+        if (!valid_module(plan->modules[i])) {
+            return BOARD_PLAN_INVALID_ARGUMENT;
+        }
+    }
+    for (i = 0U; i < plan->count; ++i) {
         if (plan->modules[i] == module) {
             return BOARD_PLAN_DUPLICATE_MODULE;
         }
