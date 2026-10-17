@@ -48,6 +48,36 @@ def execute(command: list[str]) -> None:
     subprocess.run(command, cwd=REPOSITORY_ROOT, check=True)
 
 
+def verify_cli(executable: Path) -> None:
+    cases = (
+        (["--list"], 0, "Timer0 tick", ""),
+        (["UART", "Timer0 tick"], 0, "accepted 2/2 modules", ""),
+        (["UART", "independent keys"], 1, "CONFLICT with UART", ""),
+        (["LED matrix", "DS1302"], 1, "CONFLICT with LED matrix", ""),
+        (["not-a-module"], 2, "", "unknown module: not-a-module"),
+        (["UART", "not-a-module"], 2, "", "unknown module: not-a-module"),
+    )
+    for arguments, expected_code, expected_output, expected_error in cases:
+        result = subprocess.run(
+            [str(executable), *arguments],
+            cwd=REPOSITORY_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        output_matches = (expected_output in result.stdout if expected_output
+                          else result.stdout == "")
+        error_matches = (expected_error in result.stderr if expected_error
+                         else result.stderr == "")
+        if (result.returncode != expected_code or not output_matches or
+                not error_matches):
+            raise AssertionError(
+                f"CLI {arguments!r}: exit={result.returncode}, "
+                f"stdout={result.stdout!r}, stderr={result.stderr!r}"
+            )
+    print(f"planner CLI checks passed: {len(cases)} cases")
+
+
 def main() -> int:
     args = parse_arguments()
     compiler = shutil.which(args.compiler)
@@ -71,6 +101,8 @@ def main() -> int:
         compile_command.extend(("-I", str(PLANNER_INCLUDE), "-o", str(executable)))
         execute(compile_command)
         execute([str(executable)])
+        if program_name == "board-resource-planner-demo":
+            verify_cli(executable)
 
     mode = "sanitizers" if args.sanitizers else "strict warnings"
     print(f"planner verification passed: {len(PROGRAMS)} programs ({mode})")

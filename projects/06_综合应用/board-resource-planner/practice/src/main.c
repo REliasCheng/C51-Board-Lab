@@ -2,8 +2,9 @@
 
 #include <inttypes.h>
 #include <stdio.h>
+#include <string.h>
 
-static void add_module(BoardPlan *plan, BoardModule module)
+static BoardPlanResult add_module(BoardPlan *plan, BoardModule module)
 {
     BoardConflict conflict;
     BoardPlanResult result = board_plan_add(plan, module, &conflict);
@@ -18,12 +19,54 @@ static void add_module(BoardPlan *plan, BoardModule module)
         printf("add %-18s : %s\n", board_module_name(module),
                board_plan_result_name(result));
     }
+    return result;
 }
 
-int main(void)
+static BoardModule find_module(const char *name)
+{
+    BoardModule module;
+
+    for (module = BOARD_MODULE_LED; module < BOARD_MODULE_COUNT; ++module) {
+        if (strcmp(name, board_module_name(module)) == 0) {
+            return module;
+        }
+    }
+    return BOARD_MODULE_INVALID;
+}
+
+int main(int argc, char **argv)
 {
     BoardPlan plan;
+    int index;
+    int failed = 0;
+
+    if (argc == 2 && strcmp(argv[1], "--list") == 0) {
+        BoardModule module;
+        for (module = BOARD_MODULE_LED; module < BOARD_MODULE_COUNT; ++module) {
+            puts(board_module_name(module));
+        }
+        return 0;
+    }
+
+    /* Validate the complete request before printing any planning result. */
+    for (index = 1; index < argc; ++index) {
+        if (find_module(argv[index]) == BOARD_MODULE_INVALID) {
+            fprintf(stderr, "unknown module: %s (see --list)\n", argv[index]);
+            return 2;
+        }
+    }
+
     board_plan_init(&plan);
+
+    if (argc > 1) {
+        for (index = 1; index < argc; ++index) {
+            if (add_module(&plan, find_module(argv[index])) != BOARD_PLAN_OK) {
+                failed = 1;
+            }
+        }
+        printf("accepted %zu/%d modules\n", plan.count, argc - 1);
+        return failed;
+    }
 
     add_module(&plan, BOARD_MODULE_SEVEN_SEGMENT);
     add_module(&plan, BOARD_MODULE_UART);

@@ -32,7 +32,7 @@ accepted plan / conflict details / explicit error
 
 - `practice/include/board_resources.h`：模块、资源位图和冲突结果接口。
 - `practice/src/board_resources.c`：板级资源表和组合检查。
-- `practice/src/main.c`：数码管、UART、按键、EEPROM 和 LED 的组合示例。
+- `practice/src/main.c`：保留无参数组合示例，并提供按模块名检查实际组合的 Host 命令行入口。
 - `tests/test_board_resources.c`：验证兼容组合、资源冲突、错误优先级、输出合同与失败状态不变性。
 
 ## 结果与冲突合同
@@ -59,3 +59,13 @@ python scripts/run_host_tests.py --compiler gcc
 ```
 
 该入口以 C11 严格警告选项构建并执行测试和示例；Linux 或已安装 Clang 的主机可把编译器参数改为 `clang`。程序只检查静态资源占用，不代替 Keil C51 构建、跳线检查、电气兼容性分析或板端测试。
+
+构建后可在仓库根目录运行规划器（Windows 示例）：
+
+```powershell
+./.build/host-gcc/board-resource-planner-demo.exe --list
+./.build/host-gcc/board-resource-planner-demo.exe UART "Timer0 tick"
+./.build/host-gcc/board-resource-planner-demo.exe UART "independent keys"
+```
+
+模块名与 `--list` 输出完全一致，含空格的名称须加引号。退出码 `0` 表示所选模块均被接受，`1` 表示存在冲突或重复，`2` 表示未知名称；未知名称在任何规划结果输出前被拒绝。无参数运行仍展示原有固定组合示例。测试入口会同时验证命令行成功、冲突和错误输入路径。
