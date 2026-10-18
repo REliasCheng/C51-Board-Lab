@@ -326,6 +326,23 @@ static void test_result_names(void)
                   "UNKNOWN_RESULT") == 0);
 }
 
+static void test_resource_names(void)
+{
+    static const char *const expected[] = {
+        "P0 data bus", "P1 data bus", "P2.0/P2.1", "P2.2-P2.4",
+        "P2.5-P2.7", "P3.0/P3.1", "P3.2", "P3.4-P3.6",
+        "P3.7", "Timer0", "Timer1", "INT0", "J24 display mode"
+    };
+    size_t i;
+
+    for (i = 0U; i < sizeof(expected) / sizeof(expected[0]); ++i) {
+        assert(strcmp(board_resource_name(UINT32_C(1) << i), expected[i]) == 0);
+    }
+    assert(board_resource_name(UINT32_C(0)) == NULL);
+    assert(board_resource_name(BOARD_RES_P0_BUS | BOARD_RES_TIMER0) == NULL);
+    assert(board_resource_name(UINT32_C(1) << 13) == NULL);
+}
+
 int main(void)
 {
     test_initialization();
@@ -340,7 +357,8 @@ int main(void)
     test_conflict_output_reuse_and_optional_output();
     test_repeated_planning_is_deterministic();
     test_result_names();
+    test_resource_names();
 
-    puts("board resource planner tests passed (12 cases)");
+    puts("board resource planner tests passed (13 cases)");
     return 0;
 }

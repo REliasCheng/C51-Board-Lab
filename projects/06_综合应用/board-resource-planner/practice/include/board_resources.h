@@ -74,6 +74,8 @@ BoardPlanResult board_plan_add(BoardPlan *plan, BoardModule module,
                                BoardConflict *conflict);
 const char *board_module_name(BoardModule module);
 BoardResourceMask board_module_resources(BoardModule module);
+/* Returns NULL unless resource is one known resource bit. */
+const char *board_resource_name(BoardResourceMask resource);
 const char *board_plan_result_name(BoardPlanResult result);
 
 #endif

@@ -12,9 +12,20 @@ static BoardPlanResult add_module(BoardPlan *plan, BoardModule module)
     if (result == BOARD_PLAN_OK) {
         printf("add %-18s : OK\n", board_module_name(module));
     } else if (result == BOARD_PLAN_RESOURCE_CONFLICT) {
-        printf("add %-18s : CONFLICT with %s (mask=0x%08" PRIx32 ")\n",
+        BoardResourceMask resource;
+        int first = 1;
+
+        printf("add %-18s : CONFLICT with %s (mask=0x%08" PRIx32 ", resources=",
                board_module_name(module), board_module_name(conflict.existing),
                conflict.shared_resources);
+        for (resource = UINT32_C(1); resource <= BOARD_RES_DISPLAY_SWITCH;
+             resource <<= 1) {
+            if ((conflict.shared_resources & resource) != UINT32_C(0)) {
+                printf("%s%s", first ? "" : ", ", board_resource_name(resource));
+                first = 0;
+            }
+        }
+        puts(")");
     } else {
         printf("add %-18s : %s\n", board_module_name(module),
                board_plan_result_name(result));
