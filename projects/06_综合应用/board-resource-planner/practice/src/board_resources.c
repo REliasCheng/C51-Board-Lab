@@ -58,6 +58,40 @@ BoardResourceMask board_module_resources(BoardModule module)
     return valid_module(module) ? MODULES[module].resources : UINT32_C(0);
 }
 
+const char *board_resource_name(BoardResourceMask resource)
+{
+    switch (resource) {
+    case BOARD_RES_P0_BUS:
+        return "P0 data bus";
+    case BOARD_RES_P1_BUS:
+        return "P1 data bus";
+    case BOARD_RES_P2_0_1:
+        return "P2.0/P2.1";
+    case BOARD_RES_P2_2_4:
+        return "P2.2-P2.4";
+    case BOARD_RES_P2_5_7:
+        return "P2.5-P2.7";
+    case BOARD_RES_P3_0_1:
+        return "P3.0/P3.1";
+    case BOARD_RES_P3_2:
+        return "P3.2";
+    case BOARD_RES_P3_4_6:
+        return "P3.4-P3.6";
+    case BOARD_RES_P3_7:
+        return "P3.7";
+    case BOARD_RES_TIMER0:
+        return "Timer0";
+    case BOARD_RES_TIMER1:
+        return "Timer1";
+    case BOARD_RES_INT0:
+        return "INT0";
+    case BOARD_RES_DISPLAY_SWITCH:
+        return "J24 display mode";
+    default:
+        return NULL;
+    }
+}
+
 const char *board_plan_result_name(BoardPlanResult result)
 {
     switch (result) {

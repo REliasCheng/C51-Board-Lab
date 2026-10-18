@@ -54,6 +54,9 @@ def verify_cli(executable: Path) -> None:
         (["UART", "Timer0 tick"], 0, "accepted 2/2 modules", ""),
         (["UART", "independent keys"], 1, "CONFLICT with UART", ""),
         (["LED matrix", "DS1302"], 1, "CONFLICT with LED matrix", ""),
+        (["UART", "independent keys"], 1, "resources=P3.0/P3.1)", ""),
+        (["seven-segment", "LED matrix"], 1,
+         "resources=P0 data bus, J24 display mode)", ""),
         (["not-a-module"], 2, "", "unknown module: not-a-module"),
         (["UART", "not-a-module"], 2, "", "unknown module: not-a-module"),
     )
