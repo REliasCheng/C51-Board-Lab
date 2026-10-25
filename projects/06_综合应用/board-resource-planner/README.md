@@ -52,6 +52,8 @@ accepted plan / conflict details / explicit error
 
 Host CLI 的冲突信息同时显示原始十六进制位图和对应资源名。例如数码管与 LED 点阵组合会报告 `mask=0x00001001, resources=P0 data bus, J24 display mode`。资源名来自同一资源位定义；`board_resource_name()` 仅接受单个已知资源位，空位、组合位或未知位返回 `NULL`。这些名称帮助定位静态复用冲突，不表示电气兼容或实际跳线状态。
 
+若新模块同时与多个已接受模块冲突，CLI 会按接受顺序逐项列出；`board_plan_add()` 的可选输出仍只返回第一个冲突，规划表在失败时保持不变。
+
 ## 构建
 
 从仓库根目录执行：
