@@ -4,6 +4,24 @@
 #include <stdio.h>
 #include <string.h>
 
+static void print_conflict(BoardModule incoming, BoardModule existing,
+                           BoardResourceMask shared_resources)
+{
+    BoardResourceMask resource;
+    int first = 1;
+
+    printf("add %-18s : CONFLICT with %s (mask=0x%08" PRIx32 ", resources=",
+           board_module_name(incoming), board_module_name(existing), shared_resources);
+    for (resource = UINT32_C(1); resource <= BOARD_RES_DISPLAY_SWITCH;
+         resource <<= 1) {
+        if ((shared_resources & resource) != UINT32_C(0)) {
+            printf("%s%s", first ? "" : ", ", board_resource_name(resource));
+            first = 0;
+        }
+    }
+    puts(")");
+}
+
 static BoardPlanResult add_module(BoardPlan *plan, BoardModule module)
 {
     BoardConflict conflict;
@@ -12,20 +30,18 @@ static BoardPlanResult add_module(BoardPlan *plan, BoardModule module)
     if (result == BOARD_PLAN_OK) {
         printf("add %-18s : OK\n", board_module_name(module));
     } else if (result == BOARD_PLAN_RESOURCE_CONFLICT) {
-        BoardResourceMask resource;
-        int first = 1;
+        size_t i;
+        BoardResourceMask incoming = board_module_resources(module);
 
-        printf("add %-18s : CONFLICT with %s (mask=0x%08" PRIx32 ", resources=",
-               board_module_name(module), board_module_name(conflict.existing),
-               conflict.shared_resources);
-        for (resource = UINT32_C(1); resource <= BOARD_RES_DISPLAY_SWITCH;
-             resource <<= 1) {
-            if ((conflict.shared_resources & resource) != UINT32_C(0)) {
-                printf("%s%s", first ? "" : ", ", board_resource_name(resource));
-                first = 0;
+        print_conflict(module, conflict.existing, conflict.shared_resources);
+        for (i = 0U; i < plan->count; ++i) {
+            BoardModule existing = plan->modules[i];
+            BoardResourceMask shared = incoming & board_module_resources(existing);
+
+            if (existing != conflict.existing && shared != UINT32_C(0)) {
+                print_conflict(module, existing, shared);
             }
         }
-        puts(")");
     } else {
         printf("add %-18s : %s\n", board_module_name(module),
                board_plan_result_name(result));

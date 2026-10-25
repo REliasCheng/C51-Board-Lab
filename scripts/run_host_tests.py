@@ -78,7 +78,28 @@ def verify_cli(executable: Path) -> None:
                 f"CLI {arguments!r}: exit={result.returncode}, "
                 f"stdout={result.stdout!r}, stderr={result.stderr!r}"
             )
-    print(f"planner CLI checks passed: {len(cases)} cases")
+
+    arguments = ["UART", "infrared", "independent keys"]
+    result = subprocess.run(
+        [str(executable), *arguments],
+        cwd=REPOSITORY_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if (result.returncode != 1 or
+            "CONFLICT with UART" not in result.stdout or
+            "CONFLICT with infrared" not in result.stdout or
+            result.stdout.count("CONFLICT with") != 2 or
+            result.stdout.index("CONFLICT with UART") >
+            result.stdout.index("CONFLICT with infrared") or
+            "resources=P3.0/P3.1)" not in result.stdout or
+            "resources=P3.2)" not in result.stdout):
+        raise AssertionError(
+            f"CLI {arguments!r}: exit={result.returncode}, "
+            f"stdout={result.stdout!r}, stderr={result.stderr!r}"
+        )
+    print(f"planner CLI checks passed: {len(cases) + 1} cases")
 
 
 def main() -> int:
